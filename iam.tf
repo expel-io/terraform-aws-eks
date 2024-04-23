@@ -70,7 +70,7 @@ data "aws_iam_policy_document" "eks_consumer_iam_document" {
       "ec2:DescribeRegions",
       "autoscaling:DescribeAutoScalingGroups"
     ]
-    resources = ["*"]
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
     effect    = "Allow"
   }
 }
