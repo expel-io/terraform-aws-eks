@@ -41,6 +41,7 @@ resource "aws_iam_policy" "eks_consumer_policy" {
 
 # This data block defines an IAM policy document that allows Expel Workbench to access and manage Kinesis and EKS resources.
 # Note: The policies with wildcards are ignored by tfsec.
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "eks_consumer_iam_document" {
 
   # Allow Expel Workbench to retrieve data from Kinesis
@@ -70,7 +71,7 @@ data "aws_iam_policy_document" "eks_consumer_iam_document" {
       "ec2:DescribeRegions",
       "autoscaling:DescribeAutoScalingGroups"
     ]
-    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    resources = ["*"]
     effect    = "Allow"
   }
 }
