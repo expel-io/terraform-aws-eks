@@ -6,22 +6,26 @@ This Terraform module is designed to configure Amazon Elastic Kubernetes Service
 
 ## Table of Contents
 
-- [Features](#features)
-- [Usage](#usage)
-- [Enabling k8s API Read-Only Access](#enabling-k8s-api-read-only-access)
-  - [Using `eksctl`](#1-using-eksctl)
-  - [Using Terraform](#2-using-terraform)
-- [AWS Documentation](#aws-documentation)
-- [Finishing Steps](#finishing-steps)
-- [Permissions](#permissions)
-- [Example](#example)
-- [Limitations](#limitations)
-- [Requirements](#requirements)
-- [Providers](#providers)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
-- [Resources](#resources)
-- [Contributing](wip.CONTRIBUTING.md)
+- [Terraform AWS EKS](#terraform-aws-eks)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Enabling k8s API read only access](#enabling-k8s-api-read-only-access)
+    - [1. Using `eksctl`](#1-using-eksctl)
+    - [2. Using terraform](#2-using-terraform)
+    - [AWS Documentation](#aws-documentation)
+    - [Validating mapping configuration](#validating-mapping-configuration)
+    - [Finishing steps](#finishing-steps)
+  - [Permissions](#permissions)
+  - [Example](#example)
+  - [Limitations](#limitations)
+  - [Issues](#issues)
+  - [Contributing](#contributing)
+  - [Requirements](#requirements)
+  - [Providers](#providers)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+  - [Resources](#resources)
 
 ## Features
 
@@ -164,6 +168,7 @@ Please read our [Contributing Code of Conduct](CONTRIBUTING.md) to get started.
 | <a name="input_enable_stream_encryption"></a> [enable\_stream\_encryption](#input\_enable\_stream\_encryption) | Optionally encrypt data in the Kinesis stream with a Kinesis-owned KMS key. | `bool` | `true` | no |
 | <a name="input_expel_assume_role_session_name"></a> [expel\_assume\_role\_session\_name](#input\_expel\_assume\_role\_session\_name) | The session name Expel will use when authenticating. | `string` | `"ExpelEKSServiceSession"` | no |
 | <a name="input_expel_aws_account_arn"></a> [expel\_aws\_account\_arn](#input\_expel\_aws\_account\_arn) | Expel's AWS Account ARN to allow assuming role to gain EKS access. | `string` | `"arn:aws:iam::012205512454:user/ExpelCloudService"` | no |
+| <a name="input_expel_assume_role_name"></a> [expel\_assume\_role\_name](#input\_expel\_assume\_role\_name) | The role name Expel will assume when authenticating. | `string` | `"ExpelServiceAssumeRole"` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | A prefix to group all Expel integration resources. | `string` | `"expel-aws-eks"` | no |
 | <a name="input_stream_capacity_mode"></a> [stream\_capacity\_mode](#input\_stream\_capacity\_mode) | The data stream capacity mode: ON\_DEMAND (recommended) or PROVISIONED. See: https://docs.aws.amazon.com/streams/latest/dev/how-do-i-size-a-stream.html | `string` | `"ON_DEMAND"` | no |
 | <a name="input_stream_retention_hours"></a> [stream\_retention\_hours](#input\_stream\_retention\_hours) | The number of hours data will be retained in the stream. See: https://docs.aws.amazon.com/streams/latest/dev/kinesis-extended-retention.html | `number` | `24` | no |

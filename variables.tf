@@ -13,6 +13,13 @@ variable "expel_aws_account_arn" {
   default     = "arn:aws:iam::012205512454:user/ExpelCloudService"
 }
 
+# expel_assume_role_name:
+variable "expel_assume_role_name" {
+  description = "The role name Expel will assume when authenticating."
+  type        = string
+  default     = "ExpelServiceAssumeRole"
+}
+
 # expel_assume_role_session_name:
 variable "expel_assume_role_session_name" {
   description = "The session name Expel will use when authenticating."
