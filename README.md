@@ -6,22 +6,26 @@ This Terraform module is designed to configure Amazon Elastic Kubernetes Service
 
 ## Table of Contents
 
-- [Features](#features)
-- [Usage](#usage)
-- [Enabling k8s API Read-Only Access](#enabling-k8s-api-read-only-access)
-  - [Using `eksctl`](#1-using-eksctl)
-  - [Using Terraform](#2-using-terraform)
-- [AWS Documentation](#aws-documentation)
-- [Finishing Steps](#finishing-steps)
-- [Permissions](#permissions)
-- [Example](#example)
-- [Limitations](#limitations)
-- [Requirements](#requirements)
-- [Providers](#providers)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
-- [Resources](#resources)
-- [Contributing](wip.CONTRIBUTING.md)
+- [Terraform AWS EKS](#terraform-aws-eks)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Enabling k8s API read only access](#enabling-k8s-api-read-only-access)
+    - [1. Using `eksctl`](#1-using-eksctl)
+    - [2. Using terraform](#2-using-terraform)
+    - [AWS Documentation](#aws-documentation)
+    - [Validating mapping configuration](#validating-mapping-configuration)
+    - [Finishing steps](#finishing-steps)
+  - [Permissions](#permissions)
+  - [Example](#example)
+  - [Limitations](#limitations)
+  - [Issues](#issues)
+  - [Contributing](#contributing)
+  - [Requirements](#requirements)
+  - [Providers](#providers)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+  - [Resources](#resources)
 
 ## Features
 
@@ -149,12 +153,13 @@ Please read our [Contributing Code of Conduct](CONTRIBUTING.md) to get started.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.9.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | n/a |
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -162,8 +167,11 @@ Please read our [Contributing Code of Conduct](CONTRIBUTING.md) to get started.
 | <a name="input_eks_log_group_name"></a> [eks\_log\_group\_name](#input\_eks\_log\_group\_name) | The EKS log group name to integrate with Expel Workbench. | `string` | n/a | yes |
 | <a name="input_expel_customer_organization_guid"></a> [expel\_customer\_organization\_guid](#input\_expel\_customer\_organization\_guid) | Expel customer's organization GUID assigned to you by Expel. You can find it in your browser URL after navigating to Settings > My Organization in Workbench. | `string` | n/a | yes |
 | <a name="input_enable_stream_encryption"></a> [enable\_stream\_encryption](#input\_enable\_stream\_encryption) | Optionally encrypt data in the Kinesis stream with a Kinesis-owned KMS key. | `bool` | `true` | no |
+| <a name="input_expel_assume_role_name"></a> [expel\_assume\_role\_name](#input\_expel\_assume\_role\_name) | The role name Expel will assume when authenticating. | `string` | `"ExpelServiceAssumeRole"` | no |
 | <a name="input_expel_assume_role_session_name"></a> [expel\_assume\_role\_session\_name](#input\_expel\_assume\_role\_session\_name) | The session name Expel will use when authenticating. | `string` | `"ExpelEKSServiceSession"` | no |
 | <a name="input_expel_aws_account_arn"></a> [expel\_aws\_account\_arn](#input\_expel\_aws\_account\_arn) | Expel's AWS Account ARN to allow assuming role to gain EKS access. | `string` | `"arn:aws:iam::012205512454:user/ExpelCloudService"` | no |
+| <a name="input_expel_k8s_cluster_role_name"></a> [expel\_k8s\_cluster\_role\_name](#input\_expel\_k8s\_cluster\_role\_name) | ClusterRole for Benchmark Report poller permissions. | `string` | `"expel-reader-clusterrole"` | no |
+| <a name="input_expel_k8s_user_name"></a> [expel\_k8s\_user\_name](#input\_expel\_k8s\_user\_name) | User for k8s Benchmark Report poller | `string` | `"expel-user"` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | A prefix to group all Expel integration resources. | `string` | `"expel-aws-eks"` | no |
 | <a name="input_stream_capacity_mode"></a> [stream\_capacity\_mode](#input\_stream\_capacity\_mode) | The data stream capacity mode: ON\_DEMAND (recommended) or PROVISIONED. See: https://docs.aws.amazon.com/streams/latest/dev/how-do-i-size-a-stream.html | `string` | `"ON_DEMAND"` | no |
 | <a name="input_stream_retention_hours"></a> [stream\_retention\_hours](#input\_stream\_retention\_hours) | The number of hours data will be retained in the stream. See: https://docs.aws.amazon.com/streams/latest/dev/kinesis-extended-retention.html | `number` | `24` | no |
@@ -189,6 +197,8 @@ Please read our [Contributing Code of Conduct](CONTRIBUTING.md) to get started.
 | [aws_iam_role_policy_attachment.eks_consumer_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.eks_producer_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_kinesis_stream.kinesis_data_stream](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kinesis_stream) | resource |
+| [kubernetes_cluster_role.expel-reader-clusterrole](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cluster_role) | resource |
+| [kubernetes_cluster_role_binding.expel-reader-cluster-role-binding](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cluster_role_binding) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.assume_role_iam_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.cloudwatch_assume_role_iam_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
